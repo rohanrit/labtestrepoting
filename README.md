@@ -1,6 +1,6 @@
 # Lab Test PDF Extractor
 
-A Next.js app that extracts lab test data from uploaded PDF lab reports, processes the results with OpenAI (Langchain-ready), and provides a structured JSON download.
+A node/Next.js app that extracts lab test data from uploaded PDF lab reports, processes the results with OpenAI (Langchain-ready), and provides a structured JSON download.
 
 ## Getting Started
 
