@@ -5,7 +5,7 @@ A node/Next.js app that extracts lab test data from uploaded PDF lab reports, pr
 ## Getting Started
 
 1. `npm install`
-2. Set the `OPENAI_API_KEY` in `.env.local`.
+2. Set the `OPENAI_API_KEY` in `.env.local` in root folder.
 3. `npm run dev`
 4. Visit `http://localhost:3000` and upload a report!
 
