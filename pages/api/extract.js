@@ -20,11 +20,16 @@ export default async function handler(req, res) {
 
     const gptOutput = await processTextWithGpt(text, process.env.OPENAI_API_KEY);
 
+    let entries;
     try {
-      entries = JSON.parse(gptOutput);
-    } catch {
-      res.status(400).json({ error: 'Invalid GPT output JSON', gptOutput });
-      return;
+      entries = JSON.parse(gptOutput); // first parse
+      if (typeof entries === "string") {
+        // if it’s still a string, parse again
+        entries = JSON.parse(entries);
+      }
+    } catch (err) {
+      console.error("JSON parse error:", err);
+      return res.status(400).json({ error: "Invalid GPT output JSON", gptOutput });
     }
 
     const db = await openDb();
