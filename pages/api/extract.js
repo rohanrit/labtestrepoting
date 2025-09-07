@@ -1,34 +1,46 @@
 import pdfParse from 'pdf-parse';
-import { processTextWithGpt } from '../../lib/gpt';
+import { openDb } from '../../lib/db.js';
+import { processTextWithGpt } from '../../lib/gpt.js';
 
-export const config = {
-  api: {
-    bodyParser: false, // handle multipart manually
-  },
-};
+export const config = { api: { bodyParser: false } };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST requests allowed' });
+    res.status(405).json({ error: 'Method Not Allowed' });
+    return;
   }
 
   const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
+  for await (const chunk of req) chunks.push(chunk);
   const buffer = Buffer.concat(chunks);
 
-  // Extract raw PDF text
-  const data = await pdfParse(buffer);
-  const text = data.text;
-
-  // Process with GPT to extract structured lab data
-  const gptOutput = await processTextWithGpt(text, process.env.OPENAI_API_KEY);
-
   try {
-    const json = JSON.parse(gptOutput);
-    return res.status(200).json({ json });
-  } catch {
-    return res.status(200).json({ json: gptOutput });
+    const pdfData = await pdfParse(buffer);
+    const text = pdfData.text;
+
+    const gptOutput = await processTextWithGpt(text, process.env.OPENAI_API_KEY);
+
+    try {
+      entries = JSON.parse(gptOutput);
+    } catch {
+      res.status(400).json({ error: 'Invalid GPT output JSON', gptOutput });
+      return;
+    }
+
+    const db = await openDb();
+
+    for (const entry of entries) {
+      await db.run(
+        'INSERT INTO records (testName, result, units, ranges) VALUES (?, ?, ?, ?)',
+        entry.testName,
+        entry.result,
+        entry.units,
+        entry.ranges
+      );
+    }
+
+    res.status(200).json({ data: entries });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 }

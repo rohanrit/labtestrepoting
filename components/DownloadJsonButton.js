@@ -1,13 +1,13 @@
 export default function DownloadJsonButton({ data }) {
-  const handleDownload = () => {
+  const download = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = href;
+    link.href = url;
     link.download = 'hematology_results.json';
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
-  return <button onClick={handleDownload}>Download JSON</button>;
+
+  return <button onClick={download}>Download JSON</button>;
 }
