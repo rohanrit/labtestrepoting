@@ -3,8 +3,8 @@ import './globals.css';
 import React from 'react';
 
 export const metadata = {
-  title: 'Horse Hematology Lab Extractor',
-  description: 'Extract and process horse hematology lab PDFs',
+  title: process.env.NEXT_PUBLIC_SITE_TITLE,
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
 };
 
 export default function RootLayout({
