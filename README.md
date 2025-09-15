@@ -23,6 +23,10 @@ npm install mongoose next-auth @next-auth/mongodb-adapter mongodb
 ```
 
 ```bash
+npm install axios pdf-parse langchain
+```
+
+```bash
 npm install aos bootstrap bootstrap-icons dotenv swiper
 ```
 
