@@ -15,7 +15,7 @@ bun dev
 ```
 
 ```bash
-npm install --save-dev @types/node @types/react
+npm install --save-dev @types/node @types/react @types/pdf-parse
 ```
 
 ```bash

@@ -5,7 +5,7 @@ import DataTable from "@/app/components/DataTable";
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "admin") {
+  if (!session || !session.user || session.user.role !== "admin") {
     return <p>Access denied. Admins only.</p>;
   }
 

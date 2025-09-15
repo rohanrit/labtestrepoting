@@ -1,4 +1,22 @@
-import type { NextAuthOptions } from 'next-auth'
+import type { NextAuthOptions, User as NextAuthUser, Session } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
+import type { AdapterUser } from 'next-auth/adapters'
+
+// Extend NextAuth types to include 'role'
+declare module 'next-auth' {
+    interface User {
+        role?: string;
+    }
+    interface Session {
+        user?: {
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+            role?: string;
+            id?: string;
+        };
+    }
+}
 import GitHubProvider from 'next-auth/providers/github'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { GithubProfile } from 'next-auth/providers/github'
@@ -48,13 +66,17 @@ export const options: NextAuthOptions = {
     ],
     callbacks: {
         // Ref: https://authjs.dev/guides/role-based-access-control?_gl=1*sd45qr*_gcl_au*OTExNDE1OTc1LjE3NTc1NTk4OTYuMTk4ODExMTkzNC4xNzU3ODc2MjM0LjE3NTc4NzYyMzQ.
-    async jwt({ token, user }) {
-      if (user) token.role = user.role
-      return token
-    },
-    async session({ session, token }) {
-      if (session?.user) session.user.role = token.role
-      return session
-    },
+        async jwt({ token, user }: { token: JWT; user?: NextAuthUser | AdapterUser }) {
+            if (user && 'role' in user) {
+                token.role = (user as NextAuthUser & { role?: string }).role;
+            }
+            return token;
+        },
+        async session({ session, token }: { session: Session; token: JWT }) {
+            if (session?.user) {
+                (session.user as typeof session.user & { role?: string }).role = token.role as string;
+            }
+            return session;
+        },
   },
 }

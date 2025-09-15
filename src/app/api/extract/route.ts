@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   let parsedData;
   try {
     parsedData = JSON.parse(gptRawOutput);
-  } catch (error) {
+    } catch {
     return NextResponse.json({ error: "Invalid GPT output JSON", gptRawOutput });
   }
 
