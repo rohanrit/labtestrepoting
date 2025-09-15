@@ -15,6 +15,10 @@ bun dev
 ```
 
 ```bash
+npm install --save-dev @types/node @types/react
+```
+
+```bash
 npm install mongoose next-auth @next-auth/mongodb-adapter mongodb
 ```
 
