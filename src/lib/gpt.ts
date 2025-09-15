@@ -5,16 +5,9 @@ export async function processTextWithGpt(
   apiKey: string
 ): Promise<string> {
   const prompt = `
-Extract the horse hematology lab test results and patient metadata from the following lab report.
-
-Return a JSON object with:
-- "patient": { species, patientName, owner, gender, age, id, diagnosis, years, sampleType, lot }
-- "labResults": an array of { testName, result, units, ranges }
-
-Lab report:
+Extract all horse hematology lab test results from the following report and output the JSON array directly, without string escaping and with keys: testName, result, units, ranges.
+Report:
 """${text}"""
-
-Respond ONLY with valid JSON, without explanations.
 `;
 
   const response = await axios.post(
