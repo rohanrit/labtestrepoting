@@ -28,12 +28,12 @@ export default function UploadForm() {
       // if response has no content, avoid calling res.json()
       const text = await res.text();
       json = text ? JSON.parse(text) : null;
-    } catch (e) {
+    } catch {
       // fallback to res.json() for well-formed JSON responses
       try {
         const parsed = await res.json();
         json = parsed;
-      } catch (_) {
+      } catch {
         json = { error: "Invalid JSON response from server" };
       }
     }
