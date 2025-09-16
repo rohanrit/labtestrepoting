@@ -19,7 +19,7 @@ export default function RootLayout({
       </head>
       <body>
         <header style={{ padding: 20, backgroundColor: '#0070f3', color: 'white' }}>
-          <h1>Horse Hematology Lab Data Extraction</h1>
+          <h1>Horse Haematology Lab Data Extraction</h1>
         </header>
         <main style={{ padding: '20px' }}>
           {children}

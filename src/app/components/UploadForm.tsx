@@ -23,8 +23,21 @@ export default function UploadForm() {
       method: "POST",
       body: await file.arrayBuffer(),
     });
-    const json = await res.json();
-    setJsonData(json.data || null);
+    let json: { data?: LabResult[]; error?: string } | null = null;
+    try {
+      // if response has no content, avoid calling res.json()
+      const text = await res.text();
+      json = text ? JSON.parse(text) : null;
+    } catch (e) {
+      // fallback to res.json() for well-formed JSON responses
+      try {
+        const parsed = await res.json();
+        json = parsed;
+      } catch (_) {
+        json = { error: "Invalid JSON response from server" };
+      }
+    }
+    setJsonData(json?.data || null);
     setLoading(false);
   };
 
