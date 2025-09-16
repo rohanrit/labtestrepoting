@@ -1,5 +1,17 @@
 import axios from "axios";
 
+export interface LabResult {
+  testName: string;
+  result: string;
+  units: string;
+  ranges?: string;
+}
+
+export interface ParsedGptOutput {
+  labResults: LabResult[];
+  patient?: Record<string, unknown>;
+}
+
 export async function processTextWithGpt(
   text: string,
   apiKey: string
@@ -26,4 +38,14 @@ Report:
     }
   );
   return response.data.choices[0].message.content;
+}
+
+// Helper: call GPT and parse JSON into a structured object with validation
+export async function processTextWithGptJson(
+  text: string,
+  apiKey: string
+): Promise<ParsedGptOutput> {
+  const raw = await processTextWithGpt(text, apiKey);
+  const parsed = JSON.parse(raw);
+  return parsed as ParsedGptOutput;
 }
