@@ -19,9 +19,11 @@ export default function UploadForm() {
     if (!e.target.files?.[0]) return;
     const file = e.target.files[0];
 
+    const form = new FormData();
+    form.append("file", file);
     const res = await fetch("/api/extract", {
       method: "POST",
-      body: await file.arrayBuffer(),
+      body: form,
     });
     let json: { data?: LabResult[]; error?: string } | null = null;
     try {

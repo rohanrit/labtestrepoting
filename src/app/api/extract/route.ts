@@ -9,7 +9,24 @@ export const runtime = "nodejs"; // ✅ ensure Node.js runtime
 
 export async function POST(request: Request) {
   try {
-    const buffer = Buffer.from(await request.arrayBuffer());
+    // Accept file uploads via multipart/form-data (preferred) or raw bytes as fallback
+    let buffer: Buffer;
+    try {
+      const contentType = request.headers.get("content-type") || "";
+      if (contentType.includes("multipart/form-data")) {
+        const formData = await request.formData();
+        const file = formData.get("file") as File | null;
+        if (file && typeof file.arrayBuffer === "function") {
+          buffer = Buffer.from(await file.arrayBuffer());
+        } else {
+          buffer = Buffer.from(await request.arrayBuffer());
+        }
+      } else {
+        buffer = Buffer.from(await request.arrayBuffer());
+      }
+    } catch {
+      buffer = Buffer.from(await request.arrayBuffer());
+    }
 
     let dbConnected = false;
     try {
@@ -20,49 +37,20 @@ export async function POST(request: Request) {
       dbConnected = false;
     }
 
-  let pdfData: { text?: string } | undefined;
-
-    // Quick heuristic: if the bytes decode to a path-like string, read that file instead
-    const possiblePath = buffer.toString("utf8").trim();
-    const looksLikePath = Boolean(
-      possiblePath && (possiblePath.startsWith("/") || /^[A-Za-z]:\\/.test(possiblePath) || possiblePath.startsWith(".."))
-    );
-
-    if (looksLikePath) {
-      try {
-        const fs = await import("fs/promises");
-        const fileBuf: Buffer = await fs.readFile(possiblePath);
-  let pdfParse: unknown;
-        try {
-          pdfParse = (await import("pdf-parse")).default;
-        } catch (impErr: unknown) {
-          console.error("Failed to import pdf-parse:", impErr);
-          return NextResponse.json({ error: "PDF parser unavailable" }, { status: 500 });
-        }
-        try {
-          pdfData = await (pdfParse as unknown as (input: Buffer) => Promise<{ text?: string }>)(fileBuf);
-        } catch (ppErr: unknown) {
-          console.error("pdf-parse failed on file read from provided path:", ppErr);
-          return NextResponse.json({ error: "Failed to parse PDF at provided file path" }, { status: 400 });
-        }
-      } catch (fsErr: unknown) {
-        console.error("Failed to read file at path provided in request body:", fsErr);
-        return NextResponse.json({ error: "File path provided in request body could not be read" }, { status: 400 });
-      }
-    } else {
-  let pdfParse: unknown;
-      try {
-  pdfParse = (await import("pdf-parse")).default;
-      } catch (impErr: unknown) {
-        console.error("Failed to import pdf-parse:", impErr);
-        return NextResponse.json({ error: "PDF parser unavailable" }, { status: 500 });
-      }
-      try {
-        pdfData = await (pdfParse as unknown as (input: Buffer) => Promise<{ text?: string }>)(buffer);
-      } catch (parseErr: unknown) {
-        console.error("pdf-parse failed on buffer:", parseErr);
-        return NextResponse.json({ error: "Failed to parse uploaded PDF content" }, { status: 400 });
-      }
+    let pdfData: { text?: string } | undefined;
+    // Use pdf-parse on the buffer (no longer treating the body as a filesystem path)
+    let pdfParse: unknown;
+    try {
+      pdfParse = (await import("pdf-parse")).default;
+    } catch (impErr: unknown) {
+      console.error("Failed to import pdf-parse:", impErr);
+      return NextResponse.json({ error: "PDF parser unavailable" }, { status: 500 });
+    }
+    try {
+      pdfData = await (pdfParse as unknown as (input: Buffer) => Promise<{ text?: string }>)(buffer);
+    } catch (parseErr: unknown) {
+      console.error("pdf-parse failed on buffer:", parseErr);
+      return NextResponse.json({ error: "Failed to parse uploaded PDF content" }, { status: 400 });
     }
     const text = pdfData?.text ?? "";
 
