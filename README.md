@@ -14,23 +14,6 @@ pnpm dev
 bun dev
 ```
 
-```bash
-npm install --save-dev @types/node @types/react @types/pdf-parse
-```
-
-```bash
-npm install mongoose next-auth @next-auth/mongodb-adapter mongodb
-```
-
-```bash
-npm install axios pdf-parse langchain
-```
-
-```bash
-npm install aos bootstrap bootstrap-icons dotenv swiper
-```
-
-
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
