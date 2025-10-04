@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
+import connectDB from "@/lib/db";
+import User from "@/models/User";
+import { compare } from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -13,14 +16,40 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         
-        // Add your authentication logic here
-        if (credentials.email === "user@example.com" && credentials.password === "password") {
-          return { id: "1", name: "Test User", email: "user@example.com" };
-        }
-        return null;
+        await connectDB();
+        const user = await User.findOne({ email: credentials.email });
+        
+        if (!user) return null;
+        
+        const isValid = await compare(credentials.password, user.password);
+        
+        if (!isValid) return null;
+        
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role
+        };
       }
     })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.id = token.id;
+      }
+      return session;
+    }
+  },
   pages: {
     signIn: '/signin',
   }
