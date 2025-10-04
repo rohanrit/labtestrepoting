@@ -1,5 +1,4 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import { GET, POST } from "@/auth"
 import type { NextAuthOptions } from "next-auth";
 import connectDB from "@/lib/db";
 import User from "@/models/User";

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,9 @@ export default function SignUpPage() {
 
   return (
     <div style={{ maxWidth: '400px', margin: '40px auto', padding: '20px' }}>
+      <Link href="/" style={{ display: 'inline-block', marginBottom: '20px' }}>
+        ← Back to Home
+      </Link>
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
