@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { NextAuthOptions } from "next-auth";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -10,8 +11,9 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        
         // Add your authentication logic here
-        // This is a mock example:
         if (credentials.email === "user@example.com" && credentials.password === "password") {
           return { id: "1", name: "Test User", email: "user@example.com" };
         }
@@ -22,6 +24,7 @@ const handler = NextAuth({
   pages: {
     signIn: '/signin',
   }
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
