@@ -16,6 +16,7 @@ bun dev
 
 ```
 npm install next-auth@beta
+npm install next-auth@latest
 npm install --save-dev typescript @types/react @types/node @types/next-auth
 npm install mongoose
 npm install bcryptjs @types/bcryptjs

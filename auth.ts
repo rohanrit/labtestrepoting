@@ -1,15 +1,11 @@
 import NextAuth from "next-auth"
+import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
 import connectDB from "@/lib/db"
 import User from "@/models/User"
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut
-} = NextAuth({
+export const config: NextAuthConfig = {
   providers: [
     Credentials({
       credentials: {
@@ -37,24 +33,31 @@ export const {
       }
     })
   ],
-  pages: {
-    signIn: '/signin',
-  }
-})
+  callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
+      if (trigger === "update" && session?.user) {
+        token.role = session.user.role;
       }
       return token;
     },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role;
-        session.user.id = token.id;
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.role = token.role as string;
+        session.user.id = token.id as string;
       }
       return session;
     }
   },
   pages: {
-    signIn: '/signin',
+    signIn: '/signin'
+  },
+  session: {
+    strategy: "jwt"
   }
-} satisfies NextAuthConfig
+}
 
 export const { auth, signIn, signOut } = NextAuth(config)

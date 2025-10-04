@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { auth } from '@/auth';  // Update import
+import { auth } from '@/auth';
 import connectDB from '@/lib/db';
 import PdfFile from '@/models/PdfFile';
 import { existsSync } from 'fs';
 
 export async function POST(req: Request) {
   try {
-    // Update session check
     const session = await auth();
-    if (!session?.user) {
+    
+    if (!session || !session.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -78,5 +78,4 @@ export const config = {
   api: {
     bodyParser: false,
   },
-};
 };
