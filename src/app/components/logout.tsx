@@ -14,7 +14,7 @@ const Logout = () => {
         });
     }
 
-    return <button onClick={handleLogout}>Logout</button>;
+    return <button onClick={handleLogout} className="px-3 py-2 rounded bg-red-600 hover:bg-red-700 transition w-full text-left">Logout</button>;
 }
 
 export default Logout
