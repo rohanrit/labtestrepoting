@@ -1,9 +1,10 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import PdfExtractorClient from '@/app/components/PdfExtractor';
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({
+  const session = await auth.api.getSession({ 
     headers: await headers(),
   });
 
@@ -25,26 +26,7 @@ export default async function DashboardPage() {
 
         <section className="bg-white shadow rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Upload a PDF</h2>
-          <form
-            action="#"
-            method="post"
-            encType="multipart/form-data"
-            className="flex flex-col gap-4"
-          >
-            <input
-              type="file"
-              name="pdf"
-              accept="application/pdf"
-              className="border border-gray-300 rounded p-2"
-            />
-
-            <button
-              type="submit"
-              className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-            >
-              Upload
-            </button>
-          </form>
+          <PdfExtractorClient />
         </section>
       </main>
     </div>
