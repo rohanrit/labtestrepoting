@@ -1,16 +1,21 @@
-import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import Admin from "@/models/Admin";
+import Doctor from "@/models/Doctor";
+import User from "@/models/User";
 
-const client = new MongoClient(process.env.MONGODB_URI as string);
-const db = client.db();
+async function handleSignup({ name, email, password, role }) {
+  let Model;
+  switch (role) {
+    case "ADMIN":
+      Model = Admin;
+      break;
+    case "DOCTOR":
+      Model = Doctor;
+      break;
+    default:
+      Model = User;
+  }
 
-export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    // Optional: if you don't provide a client, database transactions won't be enabled.
-    client
-  }),
-  emailAndPassword: { 
-    enabled: true, 
-  },
-});
+  const newUser = new Model({ name, email, password });
+  await newUser.save();
+  return newUser;
+}
