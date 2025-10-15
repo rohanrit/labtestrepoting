@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import PdfExtractorClient from '@/app/components/PdfExtractor';
+import PdfExtractorClient from '@/app/components/PdfExtractorClient';
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ 
