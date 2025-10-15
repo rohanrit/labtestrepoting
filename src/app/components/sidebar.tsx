@@ -14,6 +14,18 @@ const Sidebar = () => {
           >
             🏠 Home
           </Link>
+          <Link
+            href="/dashboard"
+            className="px-3 py-2 rounded border border-gray-300 text-white hover:bg-gray-700 transition"
+          >
+            Upload Report
+          </Link>
+          <Link
+            href="/dashboard/reports"
+            className="px-3 py-2 rounded border border-gray-300 text-white hover:bg-gray-700 transition"
+          >
+            Saved Reports
+          </Link>
           <Logout/>
         </nav>
       </aside>

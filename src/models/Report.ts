@@ -17,7 +17,7 @@ const ReportSchema = new mongoose.Schema({
     animalType: String,
     horseId: String,
     animalName: String,
-    testDate: String,
+    testDate: Date,
     results: [TestResultSchema],
 });
 

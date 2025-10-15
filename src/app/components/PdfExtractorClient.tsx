@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import PdfExtractor from './PdfExtractor';
+import { redirect } from "next/navigation";
 
 type TestResult = {
   item: string;
@@ -85,6 +86,7 @@ export default function PdfExtractorClient() {
 
       alert('Report saved successfully!');
       console.log('Saved report:', result.report);
+      redirect("/dashboard/reports");
     } catch (err: any) {
       console.error(err);
       alert(err.message || 'Error saving report');
