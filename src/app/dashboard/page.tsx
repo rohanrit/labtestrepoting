@@ -25,7 +25,6 @@ export default async function DashboardPage() {
         </section>
 
         <section className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Upload a PDF</h2>
           <PdfExtractorClient />
         </section>
       </main>

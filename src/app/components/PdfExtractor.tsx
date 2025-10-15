@@ -26,12 +26,6 @@ export default function PdfExtractor({ onExtract }: Props) {
       let info: Record<string, unknown> | null = null;
       let metadata: Record<string, unknown> | null = null;
 
-      if (typeof pdf.getMetadata === 'function') {
-        const meta = await pdf.getMetadata();
-        info = meta?.info ?? null;
-        metadata = meta?.metadata ?? null;
-      }
-
       onExtract?.({ text, meta: { info, metadata } });
     } catch (err: unknown) {
       console.error(err);
@@ -53,6 +47,7 @@ export default function PdfExtractor({ onExtract }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-2">
+      <h2 className="text-xl font-semibold mb-4">Upload a PDF</h2>
       <input
         type="file"
         accept="application/pdf"

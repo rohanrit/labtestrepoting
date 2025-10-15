@@ -11,27 +11,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
 
-    // ✅ Securely read the API key from environment
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "Missing OpenAI API key" }, { status: 500 });
     }
 
-    // Define structure for medical data
+    // ✅ Updated schema with separate value and unit
     const reportSchema = z.object({
       mode: z.string().optional(),
-      phone: z.string().optional(),
-      caseId: z.string().optional(),
-      masterName:  z.string().optional(),
-      sex:  z.string().optional(),
-      age:  z.string().optional(),
+      phone: z.number().nullable(),
+      caseId: z.string().nullable(),
+      masterName: z.string().nullable(),
+      sex: z.string().nullable(),
+      age: z.number().nullable(),
       animalType: z.string().optional(),
       horseId: z.string().optional(),
       animalName: z.string().optional(),
       testDate: z.string().optional(),
       results: z.array(
         z.object({
-          test: z.string(),
+          item: z.string(),
           value: z.string(),
           unit: z.string().optional(),
           range: z.string().optional(),
@@ -40,19 +39,31 @@ export async function POST(req: Request) {
     });
 
     const parser = StructuredOutputParser.fromZodSchema(reportSchema as z.ZodType<any, any, any>);
+
     const model = new ChatOpenAI({
       modelName: "gpt-4o-mini",
       temperature: 0,
-      apiKey, // ✅ Pass the key explicitly
+      apiKey,
     });
 
     const prompt = `
-You are a medical data extraction assistant. 
-Extract structured report data for a horse from the following text. 
-Include test name, result value, unit, and normal range if available.
-If animal name, ID, or date appear, include them too.
+You are a medical data extraction assistant.
+Extract structured report data for a horse from the following text.
 
-Return data in JSON strictly following this format:
+Return only raw JSON — do not include markdown, code blocks, or explanations.
+
+Format:
+${parser.getFormatInstructions()}
+
+You are a medical data extraction assistant. 
+Extract structured report data for a horse from the following text.
+
+For each test result:
+- Separate the numeric value and the unit.
+- Include test name, value, and unit.
+- If animal ID or test date appear, include them too.
+
+Return only raw JSON — do not include markdown, code blocks, or explanations strictly following this format:
 ${parser.getFormatInstructions()}
 
 Text:
