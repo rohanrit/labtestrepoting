@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { authClient } from '@/lib/auth-client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,28 +9,44 @@ const SignupPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const { data, error } = await authClient.signUp.email({
-      name: name,
-      email: email,
-      password: password,
-      callbackURL: "/dashboard",
-    }, {
-      onRequest: (ctx) => {
-        //show loading
-        console.log('Making the request...');
-      },
-      onSuccess: (ctx) => {
-        //redirect to the dashboard or sign in page
-        router.push('/dashboard');
-      },
-      onError: (ctx) => {
-        // display the error message
-        alert(ctx.error.message);
-      },
-    });
+    setError(null);
+    // Optionally add input validation here and set error if needed
+    try {
+      const { error } = await authClient.signUp.email(
+        {
+          name,
+          email,
+          password,
+          callbackURL: "/dashboard",
+        },
+        {
+          onRequest: (ctx) => {
+            console.log(ctx);
+            // Show loading indicator if desired
+          },
+          onSuccess: (ctx) => {
+            console.log(ctx);
+            router.push('/dashboard');
+          },
+          onError: (ctx) => {
+            setError(ctx.error?.message || "Signup failed");
+          },
+        }
+      );
+      if (error) {
+        setError(error.message || "Signup failed");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+    }
   }
 
   return (
@@ -42,24 +58,58 @@ const SignupPage = () => {
         >
           ← Back to Home
         </Link>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-200 p-4 ">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-gray-200 p-4 min-w-[320px] w-80">
           <h2 className='font-bold'>SIGNUP</h2>
-          <input className="border border-gray-600 p-2" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
-          <input className="border border-gray-600 p-2" type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-          <input className="border border-gray-600 p-2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-          <button className="bg-black text-white p-2 cursor-pointer" type="submit">Signup</button>
+          {error && (
+            <div className="bg-red-100 text-red-700 px-3 py-2 rounded">
+              {error}
+            </div>
+          )}
+          <input
+            className="border border-gray-600 p-2"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+            required
+          />
+          <input
+            className="border border-gray-600 p-2"
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            autoComplete="email"
+            required
+          />
+          <input
+            className="border border-gray-600 p-2"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            autoComplete="new-password"
+            required
+          />
+          <button className="bg-black text-white p-2 cursor-pointer" type="submit">
+            Signup
+          </button>
         </form>
         <div className="mt-3">
-          <p>Already have an account <Link
-            href="/auth/signin"
-            className="font-bold text-cyan-700 hover:text-gray-900 transition"
-          >
-            Sign In
-          </Link> here</p>
+          <p>
+            Already have an account?{' '}
+            <Link
+              href="/auth/signin"
+              className="font-bold text-cyan-700 hover:text-gray-900 transition"
+            >
+              Sign In
+            </Link>{' '}
+            here
+          </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignupPage
+export default SignupPage;
