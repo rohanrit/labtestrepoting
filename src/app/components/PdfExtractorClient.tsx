@@ -30,7 +30,7 @@ export default function PdfExtractorClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleExtract = async (data: { text: string; meta: any }) => {
+  const handleExtract = async (data: { text: string; meta: unknown }) => {
     try {
       setLoading(true);
       setError(null);
@@ -48,9 +48,13 @@ export default function PdfExtractorClient() {
       }
 
       setFormattedData(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Error formatting data');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error formatting data");
+      }
     } finally {
       setLoading(false);
     }
@@ -87,18 +91,22 @@ export default function PdfExtractorClient() {
       alert('Report saved successfully!');
       console.log('Saved report:', result.report);
       redirect("/dashboard/reports");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || 'Error saving report');
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Error saving report");
+      }
     }
   };
 
-  function toDateInputFormat(dateStr: string | undefined): string {
-    if (!dateStr) return '';
-    const [day, month, year] = dateStr.split('-');
-    if (!day || !month || !year) return '';
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  }
+  // function toDateInputFormat(dateStr: string | undefined): string {
+  //   if (!dateStr) return '';
+  //   const [day, month, year] = dateStr.split('-');
+  //   if (!day || !month || !year) return '';
+  //   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  // }
 
   useEffect(() => {
     if (formattedData) {

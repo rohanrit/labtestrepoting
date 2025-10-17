@@ -11,10 +11,10 @@ const SigninPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Uncomment login redirect logic after integrating session check
-  // const { data: session, isPending, error, refetch } = authClient.useSession();
-  // useEffect(() => {
-  //   if (session) redirect('/dashboard');
-  // }, [session]);
+  const { data: session} = authClient.useSession();
+  useEffect(() => {
+    if (session) redirect('/dashboard');
+  }, [session]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,8 +35,12 @@ const SigninPage = () => {
         //redirect(data.redirect);
         redirect('/auth/signin');
       }
-    } catch (err: any) {
-      setFormError(err?.message || "Unexpected error.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setFormError(err.message);
+      } else {
+        setFormError("Unexpected error.");
+      }
     } finally {
       setIsSubmitting(false);
     }

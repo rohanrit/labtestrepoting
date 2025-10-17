@@ -36,8 +36,12 @@ export default function ViewReportsPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reports');
       console.log("dr-", data.reports);
       setReports(data.reports);
-    } catch (err: any) {
-      setError(err.message || 'Error loading reports');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error loading reports");
+      }
     } finally {
       setLoading(false);
     }
@@ -53,9 +57,13 @@ export default function ViewReportsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to delete report');
-      setReports((prev) => prev.filter((r) => r.id !== id));
-    } catch (err: any) {
-      alert(err.message || 'Error deleting report');
+      setReports((prev) => prev.filter((r) => r._id !== id));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Error deleting report");
+      }
     }
   };
 
@@ -84,7 +92,7 @@ export default function ViewReportsPage() {
           </thead>
           <tbody>
             {reports.map((report) => (
-              <tr key={report.id} className="border-t">
+              <tr key={report._id} className="border-t">
                 <td className="px-4 py-2">{report.animalName || '—'}</td>
                 <td className="px-4 py-2">{report.horseId || '—'}</td>
                 <td className="px-4 py-2">{report.testDate || '—'}</td>

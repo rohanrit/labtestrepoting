@@ -38,8 +38,12 @@ export default function ViewReportForm() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to fetch report');
         setReport(data.report);
-      } catch (err: any) {
-        setError(err.message || 'Error loading report');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Error loading report");
+        }
       } finally {
         setLoading(false);
       }

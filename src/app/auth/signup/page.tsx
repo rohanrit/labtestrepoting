@@ -16,7 +16,7 @@ const SignupPage = () => {
     setError(null);
     // Optionally add input validation here and set error if needed
     try {
-      const { data, error } = await authClient.signUp.email(
+      const { error } = await authClient.signUp.email(
         {
           name,
           email,
@@ -25,9 +25,11 @@ const SignupPage = () => {
         },
         {
           onRequest: (ctx) => {
+            console.log(ctx);
             // Show loading indicator if desired
           },
           onSuccess: (ctx) => {
+            console.log(ctx);
             router.push('/dashboard');
           },
           onError: (ctx) => {
@@ -38,8 +40,12 @@ const SignupPage = () => {
       if (error) {
         setError(error.message || "Signup failed");
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   }
 

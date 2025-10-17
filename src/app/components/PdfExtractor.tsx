@@ -23,8 +23,8 @@ export default function PdfExtractor({ onExtract }: Props) {
       const pdf = await getDocumentProxy(new Uint8Array(ab));
       const { text } = await extractText(pdf, { mergePages: true });
 
-      let info: Record<string, unknown> | null = null;
-      let metadata: Record<string, unknown> | null = null;
+      const info: Record<string, unknown> | null = null;
+      const metadata: Record<string, unknown> | null = null;
 
       onExtract?.({ text, meta: { info, metadata } });
     } catch (err: unknown) {
