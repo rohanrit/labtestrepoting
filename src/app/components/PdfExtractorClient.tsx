@@ -25,7 +25,7 @@ type FormattedData = {
   results: TestResult[];
 };
 
-export default function PdfExtractorClient() {
+export default function PdfExtractorClient({category,sectitle,}: {category: 'heamatology' | 'chemistry'; sectitle: string;}) {
   const [formattedData, setFormattedData] = useState<FormattedData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +117,7 @@ export default function PdfExtractorClient() {
   return (
     <div className="flex flex-col gap-4">
       {/* Hide PDF upload once data is extracted */}
-      {!formattedData && <PdfExtractor onExtract={handleExtract} />}
+      {!formattedData && <PdfExtractor onExtract={handleExtract} sectitle={sectitle} />}
 
       {loading && <p className="text-blue-600 font-medium">Formatting extracted data...</p>}
       {error && <p className="rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</p>}
