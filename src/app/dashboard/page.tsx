@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import PdfExtractorClient from '@/app/components/PdfExtractorClient';
+import ExportReports from "../components/ExportReports";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ 
@@ -24,9 +25,22 @@ export default async function DashboardPage() {
           </p>
         </section>
 
-        <section className="bg-white shadow rounded-lg p-6">
-          <PdfExtractorClient />
-        </section>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Heamatology Reports Section */}
+          <section className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">Heamatology Reports</h3>
+            <Link href="/dashboard/heamatologyreport/add" className="bg-blue-600 text-white p-2 rounded">Add Report</Link>
+          </section>
+
+          {/* Chemistry Reports Section */}
+          <section className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">Chemistry Reports</h3>
+            <Link href="/dashboard/chemistryreport/add" className="bg-blue-600 text-white p-2 rounded">Add Report</Link>
+          </section>
+
+          <ExportReports />
+        </div>
+
       </main>
     </div>
   );

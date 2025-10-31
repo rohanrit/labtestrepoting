@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import PdfExtractor from './PdfExtractor';
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
 type TestResult = {
   item: string;
@@ -12,23 +12,47 @@ type TestResult = {
 };
 
 type FormattedData = {
-  mode?: string;
-  phone?: number;
-  caseId?: string;
-  masterName?: string;
-  sex?: string;
-  age?: number;
-  animalType?: string;
-  horseId?: string;
-  animalName?: string;
+  mode: 'heamatology';
+  horseName?: string;
   testDate?: string;
   results: TestResult[];
 };
 
-export default function PdfExtractorClient() {
+type Horse = {
+  _id: string;
+  name: string;
+};
+
+export default function PdfExtractorClient({
+  category,
+  sectitle,
+}: {
+  category: 'heamatology' | 'chemistry';
+  sectitle: string;
+}) {
   const [formattedData, setFormattedData] = useState<FormattedData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [horses, setHorses] = useState<Horse[]>([]);
+  const [loadingHorses, setLoadingHorses] = useState(true);
+
+  // ✅ Fetch user's horses
+  useEffect(() => {
+    const fetchHorses = async () => {
+      try {
+        const res = await fetch('/api/horses');
+        if (!res.ok) throw new Error('Failed to fetch horses');
+        const data = await res.json();
+        setHorses(data);
+      } catch (err) {
+        console.error('Error fetching horses:', err);
+        setError('Failed to load horses');
+      } finally {
+        setLoadingHorses(false);
+      }
+    };
+    fetchHorses();
+  }, []);
 
   const handleExtract = async (data: { text: string; meta: unknown }) => {
     try {
@@ -42,26 +66,27 @@ export default function PdfExtractorClient() {
       });
 
       const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Formatting failed');
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Formatting failed');
-      }
-
-      setFormattedData(result);
+      setFormattedData({ ...result, mode: category });
     } catch (err: unknown) {
       console.error(err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Error formatting data");
-      }
+      setError(err instanceof Error ? err.message : 'Error formatting data');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!loadingHorses && horses.length > 0 && formattedData && !formattedData.horseName) {
+      setFormattedData((prev) =>
+        prev ? { ...prev, horseName: horses[0].name } : prev
+      );
+    }
+  }, [horses, loadingHorses, formattedData]);
+
   const handleChange = (field: keyof FormattedData, value: string) => {
-    setFormattedData((prev) => prev ? { ...prev, [field]: value } : prev);
+    setFormattedData((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
   const handleResultChange = (index: number, value: string) => {
@@ -75,6 +100,12 @@ export default function PdfExtractorClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formattedData?.horseName) {
+      alert('Please select an Animal Name before submitting.');
+      return;
+    }
+
     try {
       const response = await fetch('/api/saveReport', {
         method: 'POST',
@@ -83,30 +114,17 @@ export default function PdfExtractorClient() {
       });
 
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to save report');
-      }
+      if (!response.ok) throw new Error(result.error || 'Failed to save report');
 
       alert('Report saved successfully!');
-      console.log('Saved report:', result.report);
-      redirect("/dashboard/reports");
+      redirect(
+        '/dashboard'
+      );
     } catch (err: unknown) {
       console.error(err);
-      if (err instanceof Error) {
-        alert(err.message);
-      } else {
-        alert("Error saving report");
-      }
+      alert(err instanceof Error ? err.message : 'Error saving report');
     }
   };
-
-  // function toDateInputFormat(dateStr: string | undefined): string {
-  //   if (!dateStr) return '';
-  //   const [day, month, year] = dateStr.split('-');
-  //   if (!day || !month || !year) return '';
-  //   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  // }
 
   useEffect(() => {
     if (formattedData) {
@@ -116,114 +134,58 @@ export default function PdfExtractorClient() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Hide PDF upload once data is extracted */}
-      {!formattedData && <PdfExtractor onExtract={handleExtract} />}
+      {!formattedData && <PdfExtractor onExtract={handleExtract} sectitle={sectitle} />}
 
       {loading && <p className="text-blue-600 font-medium">Formatting extracted data...</p>}
-      {error && <p className="rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</p>}
+      {error && (
+        <p className="rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</p>
+      )}
 
       {formattedData && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded border bg-white p-4 shadow-sm mt-4 flex flex-col gap-4"
+        >
+          <h2 className="text-xl font-medium mb-2">Edit Extracted Data</h2>
 
-        <form onSubmit={handleSubmit} className="rounded border bg-white p-4 shadow-sm mt-4 flex flex-col gap-4">
-          <h3 className="text-lg font-medium mb-2">Edit Extracted Data</h3>
-
-          <label>
-            Mode:
-            <input
-              type="text"
-              value={formattedData.mode || ''}
-              onChange={(e) => handleChange('mode', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
+          <input
+            type="hidden"
+            name="mode"
+            value="heamatology"
+          />
 
           <label>
-            Phone:
-            <input
-              type="tel"
-              value={formattedData.phone || ''}
-              onChange={(e) => handleChange('phone', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Case ID:
-            <input
-              type="text"
-              value={formattedData.caseId || ''}
-              onChange={(e) => handleChange('caseId', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Master Name:
-            <input
-              type="text"
-              value={formattedData.masterName || ''}
-              onChange={(e) => handleChange('masterName', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Sex:
-            <input
-              type="text"
-              value={formattedData.sex || ''}
-              onChange={(e) => handleChange('sex', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Age:
-            <input
-              type="number"
-              value={formattedData.age || ''}
-              onChange={(e) => handleChange('age', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Animal Type:
-            <input
-              type="text"
-              value={formattedData.animalType || ''}
-              onChange={(e) => handleChange('animalType', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Horse ID:
-            <input
-              type="text"
-              value={formattedData.horseId || ''}
-              onChange={(e) => handleChange('horseId', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
-          </label>
-
-          <label>
-            Animal Name:
-            <input
-              type="text"
-              value={formattedData.animalName || ''}
-              onChange={(e) => handleChange('animalName', e.target.value)}
-              className="border p-1 rounded w-full"
-            />
+            Horse Name <span className="text-red-500">*</span>
+            {loadingHorses ? (
+              <p className="text-sm text-gray-500 mt-1">Loading horses...</p>
+            ) : (
+              <select
+                required
+                value={formattedData.horseName || ''}
+                onChange={(e) => handleChange('horseName', e.target.value)}
+                className="border p-2 rounded w-full"
+              >
+                <option value="">Select a horse</option>
+                {horses.map((horse) => (
+                  <option key={horse._id} value={horse.name}>
+                    {horse.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </label>
 
           <label>
             Test Date:
             <input
-              type="text"
-              value={formattedData.testDate || ''}
+              type="date"
+              value={
+                formattedData.testDate
+                  ? new Date(formattedData.testDate).toISOString().split('T')[0]
+                  : ''
+              }
               onChange={(e) => handleChange('testDate', e.target.value)}
-              className="border p-1 rounded w-full"
+              className="border p-2 rounded w-full"
             />
           </label>
 
@@ -244,7 +206,10 @@ export default function PdfExtractorClient() {
             ))}
           </div>
 
-          <button type="submit" className="bg-green-600 text-white p-2 rounded mt-4">
+          <button
+            type="submit"
+            className="bg-green-600 text-white p-2 rounded mt-4 hover:bg-green-700"
+          >
             Submit to Database
           </button>
         </form>

@@ -1,24 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const TestResultSchema = new mongoose.Schema({
-  item: String,
-  value: String,
-  unit: String,
-  range: String,
+  item: { type: String, required: true },
+  value: { type: String, required: true },
+  unit: { type: String},
+  range: { type: String},
 });
 
 const ReportSchema = new mongoose.Schema({
-    mode:String,
-    phone: Number, 
-    caseId:String,
-    masterName:String,
-    sex: String,
-    age: Number,
-    animalType: String,
-    horseId: String,
-    animalName: String,
-    testDate: Date,
-    results: [TestResultSchema],
+  mode: { type: String, required: true },
+  horseName: { type: String, required: true },
+  testDate: { type: Date, required: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  results: [TestResultSchema],
 });
 
-export const Report = mongoose.models.Report || mongoose.model('Report', ReportSchema);
+export const Report =
+  mongoose.models.Report || mongoose.model("Report", ReportSchema);

@@ -72,8 +72,8 @@ export default function ViewReportsPage() {
   }, []);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Saved Reports</h2>
+    <section className="bg-white shadow rounded-lg p-6">
+      <h2 className="text-2xl font-bold mb-4">All Saved Reports</h2>
 
       {loading && <p>Loading reports...</p>}
       {error && <p className="text-red-600">{error}</p>}
@@ -109,6 +109,6 @@ export default function ViewReportsPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 }
