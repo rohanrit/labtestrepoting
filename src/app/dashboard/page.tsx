@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import ExportReports from "../components/ExportReports";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ 
@@ -36,6 +37,8 @@ export default async function DashboardPage() {
             <h3 className="text-xl font-semibold mb-4">Chemistry Reports</h3>
             <Link href="/dashboard/chemistryreport/add" className="bg-blue-600 text-white p-2 rounded">Add Report</Link>
           </section>
+
+          <ExportReports />
         </div>
 
       </main>

@@ -6,16 +6,8 @@ import { z } from "zod";
 export const runtime = "nodejs";
 
 const reportSchema = z.object({
-  animalType: z.string().nullable(),
-  horseId: z.string().nullable(),
-  animalName: z.string().nullable(),
+  horseName: z.string().nullable(),
   testDate: z.string().nullable(),
-  mode: z.string().nullable(),
-  phone: z.number().nullable(),
-  caseId: z.string().nullable(),
-  masterName: z.string().nullable(),
-  sex: z.string().nullable(),
-  age: z.number().nullable(),
   results: z.array(
     z.object({
       item: z.string(),

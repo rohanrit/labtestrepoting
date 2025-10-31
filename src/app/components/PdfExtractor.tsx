@@ -74,7 +74,6 @@ export default function PdfExtractor({ onExtract, sectitle, }: Props) {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={!file || loading}
