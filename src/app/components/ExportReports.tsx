@@ -10,6 +10,7 @@ export default function ExportReports() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [mode, setMode] = useState<'heamatology' | 'chemistry'>('heamatology');
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHorses = async () => {
@@ -27,7 +28,7 @@ export default function ExportReports() {
 
   const handleExport = async () => {
     if (!selectedHorse || !startDate || !endDate) {
-      alert('Please select a horse and provide both start and end dates.');
+      setFormError('Please select a horse and provide both start and end dates.');
       return;
     }
 
@@ -38,24 +39,38 @@ export default function ExportReports() {
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      alert(err.error || 'Failed to export reports');
+      const err = await res.json();      
+      setFormError(err.error || 'Failed to export reports');
       return;
+    } else {
+      setFormError(null);
+    } 
+
+    const disposition = res.headers.get('Content-Disposition');
+    let filename = `report_${startDate}_${endDate}.csv`;
+    if (disposition && disposition.includes('filename=')) {
+      const match = disposition.match(/filename="?([^"]+)"?/);
+      if (match?.[1]) filename = match[1];
     }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${mode}_${selectedHorse}_${startDate}_${endDate}.csv`;
+    a.download = filename;
     a.click();
+    a.remove();
     URL.revokeObjectURL(url);
   };
 
   return (
     <div className="p-6 bg-white rounded shadow">
       <h2 className="text-xl font-bold mb-4">Export Reports</h2>
-
+      {formError && (
+        <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">
+          {formError}
+        </div>
+      )}
       <div className="flex flex-col gap-4 max-w-md">
         <label>
           Horse:
