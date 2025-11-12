@@ -28,9 +28,8 @@ export default function ViewReportForm() {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await fetch(`/api/getReports?id=${id}&mode=heamatology`);
+        const res = await fetch(`/api/getReports?id=${id}&mode=chemistry`);
         const data = await res.json();
-        console.log('Fetched Data:', data);
         if (!res.ok) throw new Error(data.error || 'Failed to fetch report');
         setReport(data.reports?.[0] || null);
       } catch (err: unknown) {
@@ -53,8 +52,6 @@ export default function ViewReportForm() {
     // You can trigger an API call here if needed
   };
 
-  console.log('Report Data:', report);
-
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">View Report</h2>
@@ -63,7 +60,6 @@ export default function ViewReportForm() {
       {error && <p className="text-red-600">{error}</p>}
 
       {report && (
-
         <form onSubmit={handleSubmit} className="rounded border bg-white p-4 shadow-sm flex flex-col gap-4">
           <label>
             Mode:
