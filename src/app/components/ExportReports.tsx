@@ -9,7 +9,7 @@ export default function ExportReports() {
   const [selectedHorse, setSelectedHorse] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [mode, setMode] = useState<'heamatology' | 'chemistry'>('heamatology');
+  const [mode, setMode] = useState<'heamatology' | 'chemistry' | 'both'>('both');
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -103,13 +103,16 @@ export default function ExportReports() {
           />
         </label>
 
-        <label>
-          Mode:
+        <label className="block">
+          <span className="text-gray-700 font-medium">Mode:</span>
           <select
             value={mode}
-            onChange={(e) => setMode(e.target.value as 'heamatology' | 'chemistry')}
-            className="border p-2 rounded w-full"
+            onChange={(e) =>
+              setMode(e.target.value as 'heamatology' | 'chemistry' | 'both')
+            }
+            className="border p-2 rounded w-full mt-1"
           >
+            <option value="both">Both</option>
             <option value="heamatology">Haematology</option>
             <option value="chemistry">Chemistry</option>
           </select>
