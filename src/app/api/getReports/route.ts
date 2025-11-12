@@ -14,14 +14,7 @@ export async function GET(req: Request) {
     }
 
     const url = new URL(req.url);
-    const pathname = url.pathname.toLowerCase();
-
-    let mode: string | null = null;
-    if (pathname.includes('chemistryreport')) {
-      mode = 'chemistry';
-    } else if (pathname.includes('heamatologyreport')) {
-      mode = 'heamatology';
-    }
+    const mode = url.searchParams.get('mode');
 
     if (!mode) {
       return NextResponse.json({ error: 'Mode is required' }, { status: 400 });
@@ -29,7 +22,7 @@ export async function GET(req: Request) {
 
     const reports = await Report.find({
       owner: session.user.id,
-      mode: 'chemistry',
+      mode: mode,
     }).sort({ testDate: -1 });
 
     return NextResponse.json({ reports });

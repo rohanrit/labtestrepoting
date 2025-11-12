@@ -11,17 +11,11 @@ type TestResult = {
 };
 
 type Report = {
-  id: string;
-  mode?: string;
-  phone?: number;
-  caseId?: string;
-  masterName?: string;
-  sex?: string;
-  age?: number;
-  animalType?: string;
+  _id: string;
+  horseName?: string;
   horseId?: string;
-  animalName?: string;
   testDate?: string;
+  mode?: string;
   results: TestResult[];
 };
 
@@ -34,10 +28,10 @@ export default function ViewReportForm() {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await fetch(`/api/getReports?id=${id}`);
+        const res = await fetch(`/api/getReports?id=${id}&mode=chemistry`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to fetch report');
-        setReport(data.report);
+        setReport(data.reports?.[0] || null);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -73,48 +67,23 @@ export default function ViewReportForm() {
           </label>
 
           <label>
-            Phone:
-            <input type="tel" value={report.phone || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
-            Case ID:
-            <input type="text" value={report.caseId || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
-            Master Name:
-            <input type="text" value={report.masterName || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
-            Sex:
-            <input type="text" value={report.sex || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
-            Age:
-            <input type="number" value={report.age || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
-            Animal Type:
-            <input type="text" value={report.animalType || ''} disabled className="border p-1 rounded w-full" />
-          </label>
-
-          <label>
             Horse ID:
             <input type="text" value={report.horseId || ''} disabled className="border p-1 rounded w-full" />
           </label>
 
           <label>
             Animal Name:
-            <input type="text" value={report.animalName || ''} disabled className="border p-1 rounded w-full" />
+            <input type="text" value={report.horseName || ''} disabled className="border p-1 rounded w-full" />
           </label>
 
           <label>
             Test Date:
-            <input type="text" value={report.testDate || ''} disabled className="border p-1 rounded w-full" />
+            <input
+              type="date"
+              value={report.testDate ? new Date(report.testDate).toISOString().split('T')[0] : ''}
+              disabled
+              className="border p-1 rounded w-full"
+            />
           </label>
 
           <h4 className="font-semibold mt-4">Test Results</h4>

@@ -11,12 +11,12 @@ type TestResult = {
 };
 
 type Report = {
-    _id: string;
-    horseName?: string;
-    horseId?: string;
-    testDate?: string;
-    mode?: string;
-    results: TestResult[];
+  _id: string;
+  horseName?: string;
+  horseId?: string;
+  testDate?: string;
+  mode?: string;
+  results: TestResult[];
 };
 
 export default function ViewReportForm() {
@@ -28,10 +28,11 @@ export default function ViewReportForm() {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const res = await fetch(`/api/getReports?id=${id}`);
+        const res = await fetch(`/api/getReports?id=${id}&mode=heamatology`);
         const data = await res.json();
+        console.log('Fetched Data:', data);
         if (!res.ok) throw new Error(data.error || 'Failed to fetch report');
-        setReport(data.report);
+        setReport(data.reports?.[0] || null);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -52,6 +53,8 @@ export default function ViewReportForm() {
     // You can trigger an API call here if needed
   };
 
+  console.log('Report Data:', report);
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">View Report</h2>
@@ -60,6 +63,7 @@ export default function ViewReportForm() {
       {error && <p className="text-red-600">{error}</p>}
 
       {report && (
+
         <form onSubmit={handleSubmit} className="rounded border bg-white p-4 shadow-sm flex flex-col gap-4">
           <label>
             Mode:
@@ -78,7 +82,12 @@ export default function ViewReportForm() {
 
           <label>
             Test Date:
-            <input type="text" value={report.testDate || ''} disabled className="border p-1 rounded w-full" />
+            <input
+              type="date"
+              value={report.testDate ? new Date(report.testDate).toISOString().split('T')[0] : ''}
+              disabled
+              className="border p-1 rounded w-full"
+            />
           </label>
 
           <h4 className="font-semibold mt-4">Test Results</h4>

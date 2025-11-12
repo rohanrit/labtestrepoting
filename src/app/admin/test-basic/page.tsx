@@ -13,6 +13,7 @@ type TestBasic = {
 export default function TestBasicPage() {
   const [tests, setTests] = useState<TestBasic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch test reference data
   useEffect(() => {
@@ -44,8 +45,9 @@ export default function TestBasicPage() {
       });
       if (!res.ok) throw new Error("Failed to update test");
       alert("Updated successfully!");
-    } catch (err: any) {
-      alert(err.message || "Error updating test");
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Error updating test');
     }
   };
 
@@ -61,8 +63,9 @@ export default function TestBasicPage() {
       if (!res.ok) throw new Error("Failed to delete test");
       setTests(tests.filter((t) => t._id !== id));
       alert("Deleted successfully!");
-    } catch (err: any) {
-      alert(err.message || "Error deleting test");
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Error deleting test');
     }
   };
 
@@ -71,6 +74,7 @@ export default function TestBasicPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Manage Test Reference Data</h1>
+      {error && <p className="text-red-600">{error}</p>}
       <div className="grid grid-cols-1 gap-4">
         {tests.map((test, index) => (
           <form
@@ -124,20 +128,21 @@ export default function TestBasicPage() {
               placeholder="Range High"
               className="border p-2 rounded"
             />
-            <div className="flex gap-2">
+            <div className="w-full flex gap-2">
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
               >
                 Save
               </button>
-              {/* <button
+              <button
                 type="button"
                 onClick={() => test._id && handleDelete(test._id)}
                 className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                disabled
               >
                 Delete
-              </button> */}
+              </button>
             </div>
           </form>
         ))}
