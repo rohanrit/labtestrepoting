@@ -8,23 +8,28 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    // Get current user session
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const url = new URL(req.url);
-    const mode = url.searchParams.get('mode'); // 'chemistry' or 'heamatology'
+    const pathname = url.pathname.toLowerCase();
+
+    let mode: string | null = null;
+    if (pathname.includes('chemistryreport')) {
+      mode = 'chemistry';
+    } else if (pathname.includes('heamatologyreport')) {
+      mode = 'heamatology';
+    }
 
     if (!mode) {
       return NextResponse.json({ error: 'Mode is required' }, { status: 400 });
     }
 
-    // Fetch reports for this user and mode
     const reports = await Report.find({
       owner: session.user.id,
-      mode: mode,
+      mode: 'chemistry',
     }).sort({ testDate: -1 });
 
     return NextResponse.json({ reports });

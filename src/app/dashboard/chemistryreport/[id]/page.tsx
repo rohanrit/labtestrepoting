@@ -11,12 +11,18 @@ type TestResult = {
 };
 
 type Report = {
-    _id: string;
-    horseName?: string;
-    horseId?: string;
-    testDate?: string;
-    mode?: string;
-    results: TestResult[];
+  id: string;
+  mode?: string;
+  phone?: number;
+  caseId?: string;
+  masterName?: string;
+  sex?: string;
+  age?: number;
+  animalType?: string;
+  horseId?: string;
+  animalName?: string;
+  testDate?: string;
+  results: TestResult[];
 };
 
 export default function ViewReportForm() {
@@ -67,13 +73,43 @@ export default function ViewReportForm() {
           </label>
 
           <label>
+            Phone:
+            <input type="tel" value={report.phone || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
+            Case ID:
+            <input type="text" value={report.caseId || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
+            Master Name:
+            <input type="text" value={report.masterName || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
+            Sex:
+            <input type="text" value={report.sex || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
+            Age:
+            <input type="number" value={report.age || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
+            Animal Type:
+            <input type="text" value={report.animalType || ''} disabled className="border p-1 rounded w-full" />
+          </label>
+
+          <label>
             Horse ID:
             <input type="text" value={report.horseId || ''} disabled className="border p-1 rounded w-full" />
           </label>
 
           <label>
             Animal Name:
-            <input type="text" value={report.horseName || ''} disabled className="border p-1 rounded w-full" />
+            <input type="text" value={report.animalName || ''} disabled className="border p-1 rounded w-full" />
           </label>
 
           <label>
