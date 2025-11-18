@@ -26,13 +26,14 @@ export default function ExportReports() {
     fetchHorses();
   }, []);
 
-  const handleExport = async () => {
+  const handleExport = async (format: 'csv' | 'xlsx') => {
     if (!selectedHorse || !startDate || !endDate) {
       setFormError('Please select a horse and provide both start and end dates.');
       return;
     }
 
-    const res = await fetch('/api/exportReports', {
+    const url = `/api/exportReports?format=${format}`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ horseId: selectedHorse, startDate, endDate, mode }),
@@ -47,20 +48,20 @@ export default function ExportReports() {
     } 
 
     const disposition = res.headers.get('Content-Disposition');
-    let filename = `report_${startDate}_${endDate}.csv`;
+    let filename = `report_${startDate}_${endDate}.${format}`;
     if (disposition && disposition.includes('filename=')) {
       const match = disposition.match(/filename="?([^"]+)"?/);
       if (match?.[1]) filename = match[1];
     }
 
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const urlBlob = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = urlBlob;
     a.download = filename;
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(urlBlob);
   };
 
   return (
@@ -118,12 +119,20 @@ export default function ExportReports() {
           </select>
         </label>
 
-        <button
-          onClick={handleExport}
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-        >
-          Export CSV
-        </button>
+        <div className="flex gap-4 mt-2">
+          <button
+            onClick={() => handleExport('csv')}
+            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex-1 cursor-pointer"
+          >
+            Export CSV
+          </button>
+          {/* <button
+            onClick={() => handleExport('xlsx')}
+            className="bg-green-600 text-white p-2 rounded hover:bg-green-700 flex-1 cursor-pointer"
+          >
+            Export Excel
+          </button> */}
+        </div>
       </div>
     </div>
   );
