@@ -85,19 +85,16 @@ export default function PdfExtractorClient({
     }
   }, [horses, loadingHorses, formattedData]);
 
-  // Utility inside handleChange
   const sanitizeDate = (dateStr: string): string => {
-    // Remove unwanted characters
+    if (!dateStr) return '';
+
     const cleaned = dateStr.replace(/[^0-9-]/g, '');
 
-    // Convert DD-MM-YYYY → YYYY-MM-DD if needed
     const parts = cleaned.split('-');
     if (parts.length === 3) {
       const [dd, mm, yyyy] = parts;
-      if (yyyy.length === 4) {
-        return `${yyyy}-${mm}-${dd}`; // already YYYY-MM-DD
-      } else {
-        return `${yyyy}-${mm}-${dd}`; // fallback conversion
+      if (dd.length === 2 && yyyy.length === 4) {
+        return `${yyyy}-${mm}-${dd}`;
       }
     }
     return cleaned;
@@ -106,15 +103,18 @@ export default function PdfExtractorClient({
   const handleChange = (field: keyof FormattedData, value: string) => {
     let newValue = value;
 
-    if (field === 'testDate' && value) {
-      const formatted = sanitizeDate(value);
-      const dateObj = new Date(formatted);
-
-      // Only accept valid dates
-      if (!isNaN(dateObj.getTime())) {
-        newValue = dateObj.toISOString().split('T')[0]; // always YYYY-MM-DD
+    if (field === 'testDate') {
+      if (!value) {
+        newValue = '';
       } else {
-        newValue = ''; // clear invalid input
+        const formatted = sanitizeDate(value);
+        const dateObj = new Date(formatted);
+
+        if (!isNaN(dateObj.getTime())) {
+          newValue = dateObj.toISOString().split('T')[0];
+        } else {
+          newValue = '';
+        }
       }
     }
 
@@ -151,9 +151,7 @@ export default function PdfExtractorClient({
       if (!response.ok) throw new Error(result.error || 'Failed to save report');
 
       alert('Report saved successfully!');
-      redirect(
-        '/dashboard'
-      );
+      redirect('/dashboard');
     } catch (err: unknown) {
       console.error(err);
       alert(err instanceof Error ? err.message : 'Error saving report');
@@ -213,7 +211,7 @@ export default function PdfExtractorClient({
             Test Date:
             <input
               type="date"
-              value={formattedData.testDate || ''}
+              value={formattedData.testDate || ''}   // null-safe binding
               onChange={(e) => handleChange('testDate', e.target.value)}
               className="border p-2 rounded w-full"
             />
