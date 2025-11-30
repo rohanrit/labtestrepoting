@@ -85,8 +85,42 @@ export default function PdfExtractorClient({
     }
   }, [horses, loadingHorses, formattedData]);
 
+  // Utility inside handleChange
+  const sanitizeDate = (dateStr: string): string => {
+    // Remove unwanted characters
+    const cleaned = dateStr.replace(/[^0-9-]/g, '');
+
+    // Convert DD-MM-YYYY → YYYY-MM-DD if needed
+    const parts = cleaned.split('-');
+    if (parts.length === 3) {
+      const [dd, mm, yyyy] = parts;
+      if (yyyy.length === 4) {
+        return `${yyyy}-${mm}-${dd}`; // already YYYY-MM-DD
+      } else {
+        return `${yyyy}-${mm}-${dd}`; // fallback conversion
+      }
+    }
+    return cleaned;
+  };
+
   const handleChange = (field: keyof FormattedData, value: string) => {
-    setFormattedData((prev) => (prev ? { ...prev, [field]: value } : prev));
+    let newValue = value;
+
+    if (field === 'testDate' && value) {
+      const formatted = sanitizeDate(value);
+      const dateObj = new Date(formatted);
+
+      // Only accept valid dates
+      if (!isNaN(dateObj.getTime())) {
+        newValue = dateObj.toISOString().split('T')[0]; // always YYYY-MM-DD
+      } else {
+        newValue = ''; // clear invalid input
+      }
+    }
+
+    setFormattedData((prev) =>
+      prev ? { ...prev, [field]: newValue } : prev
+    );
   };
 
   const handleResultChange = (index: number, value: string) => {
@@ -179,11 +213,7 @@ export default function PdfExtractorClient({
             Test Date:
             <input
               type="date"
-              value={
-                formattedData.testDate
-                  ? new Date(formattedData.testDate).toISOString().split('T')[0]
-                  : ''
-              }
+              value={formattedData.testDate || ''}
               onChange={(e) => handleChange('testDate', e.target.value)}
               className="border p-2 rounded w-full"
             />
